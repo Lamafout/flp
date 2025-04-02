@@ -1,38 +1,27 @@
 open System
 
-let rec findMinIndexChurch list index minIndex minValue =
+let rec minIndexChurch (list: int list) (minVal: int) (minIdx: int) (currIdx: int) =
     match list with
-    | [] -> minIndex
+    | [] -> minIdx
     | head :: tail ->
-        if head < minValue then
-            findMinIndexChurch tail (index + 1) index head
-        else
-            findMinIndexChurch tail (index + 1) minIndex minValue
+        let newMinVal, newMinIdx = if head < minVal then head, currIdx else minVal, minIdx
+        minIndexChurch tail newMinVal newMinIdx (currIdx + 1)
 
-let rec toChurchList lst =
-    match lst with
-    | [] -> fun f acc -> acc
-    | x::xs -> fun f acc -> f x (toChurchList xs f acc)
+let findMinIndexChurch list =
+    match list with
+    | [] -> -1
+    | head :: tail -> minIndexChurch tail head 0 1
 
-let findMinIndexList lst =
-    let rec aux lst index minIndex minValue =
-        match lst with
-        | [] -> minIndex
-        | x::xs ->
-            if x < minValue then
-                aux xs (index + 1) index x
-            else
-                aux xs (index + 1) minIndex minValue
-    match lst with
-    | [] -> failwith "Empty list"
-    | x::xs -> aux xs 1 0 x
+let findMinIndexList (list: int list) =
+    match list with
+    | [] -> -1
+    | _ -> list |> List.mapi (fun i x -> (i, x)) |> List.minBy (fun (i, x) -> x) |> fst
 
 [<EntryPoint>]
 let main argv =
-    let inputList = [3; 1; 4; 1; 5; 9; 2; 6; 5; 3; 5]
-    let churchList = toChurchList inputList
-    let minIndexChurch = findMinIndexChurch inputList 0 0 (List.head inputList)
-    let minIndexList = findMinIndexList inputList
-    printfn "Минимальный индекс (Church): %d" minIndexChurch
-    printfn "Минимальный индекс (List): %d" minIndexList
+    let testList = [5; 2; 8; 1; 9]
+    let resultChurch = findMinIndexChurch testList
+    let resultList = findMinIndexList testList
+    Console.WriteLine("Church method result: " + resultChurch.ToString())
+    Console.WriteLine("List method result: " + resultList.ToString())
     0
